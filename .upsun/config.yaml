@@ -1,0 +1,31 @@
+# Upsun configuration, generated using AI at: 2026-11-03T14:44:59.410Z
+# AI can make mistakes. Please modify this file to suit your needs.
+applications:
+  evilginx:
+    type: golang:1.26  # Use latest Go runtime from Registry
+
+    hooks:
+      build: |
+        set -ex
+        go mod download
+        go build -o ./bin/evilginx main.go
+
+    web:
+      commands:
+        start: ./bin/evilginx --port=$PORT
+      locations:
+        /:
+          passthru: true  # Proxy all requests to the app
+
+    mounts:
+      phishlets:
+        source: storage  # Persist phishlets directory for runtime modifications
+
+    relationships: {}
+
+# No external services detected or required
+
+routes:
+  https://{default}/:
+    type: upstream
+    upstream: evilginx:http
